@@ -1,3 +1,5 @@
+import re
+
 import scrapy
 
 class LawsSpider(scrapy.Spider):
@@ -9,8 +11,10 @@ class LawsSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
-        page = response.url.split("/")[-2]
-        filename = f'quotes-{page}.html'
-        with open(filename, 'wb') as f:
-            f.write(response.body)
-        self.log(f'Saved file {filename}')
+        laws = response.css('p.act-section-name > a')
+        for law in laws:
+            law_title = law.xpath("text()").get().strip()
+            law_link = law.xpath("@href").get().strip()
+
+            print(law_title, law_link)
+
